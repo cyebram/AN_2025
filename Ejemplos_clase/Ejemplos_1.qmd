@@ -1,0 +1,46 @@
+---
+title: "Ejemplos 1"
+format: html
+editor: visual
+---
+
+# Listas
+
+Crear una lista cuyos elementos sean números, posteriormente aplicar diferentes funciones y métodos.
+
+
+# For
+
+Aplicar el ciclo for a listas
+
+
+# Módulo `math`
+
+Explorar funciones.
+
+
+
+# Crear funciones.
+
+
+# Ejercicios
+
+Escribir una función llamada `my_bin_2_dec(b)` donde $b$ es un número binario representado por una lista de 1's y 0's. El último elemento de $b$ representa el coeficiente de $2^0$, el penúltimo elemento de $b$ representa el coeficiente de $2^1$ y así sucesivamente. El resultado $d$, debe ser la representación decimal de $b$. 
+
+Comparar los resultados con la función `int(numero, 2)` de Python. 
+
+
+
+
+
+Escribir una función llamada `my_dec_2_bin(d)` donde $b$ es un número entero positivo en base 10. El resultado, $b$, debe ser una lista de 1's y 0's. 
+
+Comparar los resultados con la función `bin()` de Python. 
+
+
+
+
+
+
+
+
