@@ -8,15 +8,71 @@ editor: visual
 
 Crear una lista cuyos elementos sean números, posteriormente aplicar diferentes funciones y métodos.
 
+```{python}
+lista_1 = [1, 2, 85, 4, 7]
+lista_1
+```
+Lista mixta
+
+```{python}
+lista_2 = [1, "a", "Nombre", "4", True, False, [2, 3]]
+lista_2
+```
+Método append
+
+
+```{python}
+lista_1.append(16)
+lista_1
+```
+```{python}
+#|code-fold: true
+
+lista_1.extend([9, 19, 20])
+lista_1
+```
+```{python}
+lista_1.index(7)
+```
+```{python}
+lista_1.reverse()
+lista_1
+```
+
+```{python}
+lista_str = list("Cadena a lista")
+lista_str
+```
+
 
 # For
 
 Aplicar el ciclo for a listas
 
 
+```{python}
+numeros = [3, 5,6, 8, 9, 16]
+d = 0
+
+for number in numeros:
+  d = d +number
+  print(number*2)
+print("------------------")  
+print(d)
+
+```
+
+
+
 # Módulo `math`
 
 Explorar funciones.
+
+```{python}
+import math
+math.cos(math.pi/5)
+```
+
 
 
 
@@ -25,9 +81,33 @@ Explorar funciones.
 
 # Ejercicios
 
-Escribir una función llamada `my_bin_2_dec(b)` donde $b$ es un número binario representado por una lista de 1's y 0's. El último elemento de $b$ representa el coeficiente de $2^0$, el penúltimo elemento de $b$ representa el coeficiente de $2^1$ y así sucesivamente. El resultado $d$, debe ser la representación decimal de $b$. 
+Escribir una función llamada `my_bin_2_dec(b)` donde $b$ es un número binario representado por una lista de 1's y 0's. El último elemento de $b$ representa el coeficiente de $2^0$, el penúltimo elemento de $b$ representa el coeficiente de $2^1$ y así sucesivamente. El resultado $d$, debe ser la representación decimal de $b$.
+
+```{python}
+def my_bin_2_dec(b):
+  b=list(b)
+  c = len(b)-1
+  d= 0
+  for bit in b:
+    d = d + (int(bit) * 2 ** c)
+    c -=1
+  return d
+
+#my_bin_2_dec([1,0, 0, 1, 0])
+
+my_bin_2_dec("10010")
+
+```
+
+
+
 
 Comparar los resultados con la función `int(numero, 2)` de Python. 
+
+```{python}
+int("100000111", 2)
+```
+
 
 
 
@@ -37,6 +117,20 @@ Escribir una función llamada `my_dec_2_bin(d)` donde $b$ es un número entero p
 
 Comparar los resultados con la función `bin()` de Python. 
 
+
+
+```{python}
+def my_dec_2_bin(d):
+  q=d
+  b= []
+  while q>0:
+    b.append(q%2)
+    q= q//2
+  b.reverse()
+  return b
+
+my_dec_2_bin(18)
+```
 
 
 
