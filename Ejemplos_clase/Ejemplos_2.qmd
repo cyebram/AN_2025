@@ -1,0 +1,63 @@
+---
+title: "Ejemplos 2. Gráficas"
+format: html
+editor: visual
+---
+
+Utilizaremos el package [matplotlib](https://matplotlib.org/), se sugiere leer la documentación, tutoriales y consultar la galería. Inicialmente se realizarán las gráficas de algunas funciones.
+
+
+Realizar la gráfica de las siguientes funciones en el intervalo dado.
+
+```{python}
+#| code-fold: true
+
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+
+
+
+a. $f(x)=e^x-3x^2$, en $[0,5]$.
+
+
+```{python}
+#| code-fold: true
+
+x = np.linspace(0, 5, 100)
+y = np.exp(x) - 3 * x ** 2
+
+# Crear gráfica
+plt.figure(figsize=(8,6)) # Tamaño en pulgadas
+plt.plot(x,y, color ="red") 
+plt.axhline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje x
+plt.axvline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje x
+
+# Personalizar gráfica
+plt.title(r"Gráfica de la función $f(x)=e^x-3x^2$", fontsize= 14)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+
+plt.show()
+```
+
+b) $f(x)=3x+1$ en $[-3, 3]$
+
+c) $f(x)=x^4-x^3+x^2-x+1$  en $[-1, 1.5]$
+
+d) $f(x)=x\,cos\,x$  en $[-10, 10]$
+
+e) $f(x)=e^{2x}$ en $[-2,1]$
+
+f) $f(x)=log(e^x+2)$ en $[-3,3]$  
+
+g) $f(x) = cos \,x+sen\,x$ en $[-2\pi, 2\pi]$
+
+h) $f(x)=sen(e^x-2)$ en $[-2,4]$
+
+
+
+
+
