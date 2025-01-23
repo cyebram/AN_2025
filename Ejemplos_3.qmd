@@ -1,0 +1,76 @@
+---
+title: "Ejemplos 3. Método de bisección"
+format: html
+editor: visual
+---
+
+
+$f(x)= x^3+4x^2-10$
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(1,2, 100)
+y = x**3+4*x**2-10
+
+x1 = np.linspace(1,1.5, 100)
+y1 = x1**3+4*x1**2-10
+
+x2 = np.linspace(1.25,1.5, 100)
+y2 = x2**3+4*x2**2-10
+
+x3 = np.linspace(1.25,1.375, 100)
+y3 = x3**3+4*x3**2-10
+
+plt.figure(figsize=(6, 4.5))
+plt.plot(x,y, color="gray", label = "Inicial")
+plt.plot(x1,y1, color="blue", label = "Iteración 1")
+plt.plot(x2,y2, color="red", label = "Iteración 2")
+plt.plot(x3,y3, color="yellow", label = "Iteración 3", linewidth=1.2)
+plt.axhline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje x
+#plt.axvline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje y
+
+plt.xlabel("Eje x")
+plt.ylabel("Eje y")
+plt.legend()
+plt.grid()
+
+
+plt.show()
+```
+
+```{python}
+
+f = lambda x: x**3+4*x**2-10
+
+
+```
+
+
+
+```{python}
+def mi_biseccion(f, a, b, tol, it_max):
+  if f(a)*f(b)>0:
+    raise Exception("Los extremos del intervalo no cumplen con el criterio del método")
+  
+  iteracion = 0
+  while iteracion < it_max:
+    m = a + (b-a)/2
+    if np.abs(f(m))< tol:
+      return m
+    elif f(a)*f(m)>0:
+      a = m
+      iteracion =+1
+    else:
+      b = m
+      iteracion =+1
+      
+  return m, iteracion
+  
+```
+
+```{python}
+mi_biseccion(f, 1, 2, 0.00000001, 100)
+```
+
