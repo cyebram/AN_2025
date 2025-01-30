@@ -1,13 +1,20 @@
 ---
 title: "Ejemplos 3. Método de bisección"
+lang: es
 format: html
 editor: visual
 ---
 
+::: {#exm-bis1}
+Aproxima la raíz de la función $f(x)= x^3+4x^2-10$ en el intervalo $[1,2]$ por medio del método de bisección
+:::
 
-$f(x)= x^3+4x^2-10$
+A continuación se muestra la gráfica de la función en el intervalo $[1,2]$ y en los subintervalos que resultan al aplicar tres iteraciones del método de bisección.
 
 ```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -40,37 +47,117 @@ plt.grid()
 plt.show()
 ```
 
-```{python}
-
-f = lambda x: x**3+4*x**2-10
-
-
-```
-
-
+Creamos una función para el método de bisección:
 
 ```{python}
-def mi_biseccion(f, a, b, tol, it_max):
-  if f(a)*f(b)>0:
+def mi_biseccion(f, a, b, tol=1e-6, it_max=100):
+  if np.sign(f(a)) == np.sign(f(b)):
     raise Exception("Los extremos del intervalo no cumplen con el criterio del método")
   
   iteracion = 0
   while iteracion < it_max:
     m = a + (b-a)/2
     if np.abs(f(m))< tol:
-      return m
-    elif f(a)*f(m)>0:
+      iteracion +=1
+      convergencia = True
+      return m, iteracion, convergencia
+    elif np.sign(f(a)) == np.sign(f(m)):
       a = m
-      iteracion =+1
+      iteracion +=1
     else:
       b = m
-      iteracion =+1
-      
-  return m, iteracion
+      iteracion +=1
+  convergencia = False    
+  return m, iteracion, convergencia
   
 ```
 
+Aplicamos la función `mi_biseccion` a la función y se muestran los resultados.
+
 ```{python}
-mi_biseccion(f, 1, 2, 0.00000001, 100)
+#| code-fold: true
+
+f = lambda x: x**3+4*x**2-10
+
+root, iteraciones, convergencia = mi_biseccion(f, 1, 2, 0.000000001, 1000)
+
+print(f"Después de {iteraciones} iteraciones la aproximación de la raíz de la función es {root}")
+print(f"¿Hubo convergencia con la exactitud solicitada?: {convergencia}")
+
 ```
+
+::: {#exm-bis2}
+Aproximar la raiz de la función $f(x)=\sqrt{x}-sen(x)-1$.
+:::
+
+Inicialmente se realiza la gráfica de la función (notemos que está definida para $x\geq0$)
+
+```{python}
+#| code-fold: true
+
+import numpy as np # Funciones matemáticas
+from scipy import optimize  # Métodos numéricos
+import matplotlib.pyplot as plt # Gráficas
+
+f = lambda x: np.sqrt(x) - np.sin(x)-1
+
+x= np.linspace(0, 5, 500)
+y=f(x)
+
+plt.figure(figsize=(6, 4.5))
+plt.plot(x,y, color="red")
+plt.axhline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje x
+plt.axvline(0, color = "black", linewidth = 0.8, linestyle = "--") #Eje y
+
+plt.xlabel("Eje x")
+plt.ylabel("Eje y")
+#plt.legend()
+plt.grid()
+
+plt.show()
+```
+
+A partir de la gráfica podemos concluir que existe una raíz en el intervalo $[2,3]$, se aproxima utilizando la función `optimize.bisect` de Scipy:
+
+```{python}
+#| code-fold: true
+
+raiz_biseccion, info_biseccion = optimize.bisect(f,2,3, full_output=True)
+
+print("Información método de la bisección")
+print(info_biseccion)
+
+print("----------------")
+
+print(f"La raíz es {raiz_biseccion}")
+```
+
+Creamos una función (sin manejo de excepciones o errores) para el método de Newton-Raphson:
+
+```{python}
+def my_newton(f, der_f, x0,  tol=1e-9):
+  raiz = x0
+  while np.abs(f(raiz))>tol:
+    raiz= raiz - f(raiz)/der_f(raiz)
+  return raiz
+```
+
+
+En este caso es necesario brindar también la derivada de la función, $f'(x)=\frac{1}{2\sqrt{x}}-cos(x)$, aproximamos la raíz de la función con `my_newton` con un valor inicial de $x_0=2$.
+
+```{python}
+#| code-fold: true
+
+der_f = lambda x: 0.5/ np.sqrt(x)-np.cos(x)
+
+raiz = my_newton(f, der_f, 2)
+
+print(f"La raíz de la función es: {raiz}")
+
+```
+
+
+
+
+
 
