@@ -1,0 +1,71 @@
+---
+title: "Ejemplos 4. Series de Taylor"
+lang: es
+format: html
+editor: visual
+---
+
+
+Packages requeridos:
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+```
+
+
+
+
+::: {#exm-taylor1}
+Sea $f(x)=(x-1)log(x)$ y $x_0=1$
+
+a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+
+b) Usar $P_5(0.5)$ para aproximar $f(0.5)$. 
+
+c) Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
+
+:::
+
+
+
+::: {#exm-taylor2}
+Sea $f(x)=2x\,cos(2x)-(x-2)^2$ y $x_0=0$
+
+a) Calcular y graficar los polinomios de Taylor hasta grado $n=4$.
+
+b) Usar $P_4(0.4)$ para aproximar $f(0.4)$. 
+
+c) Encontrar una cota superior para el error $|f(0.4)-P_4(0.4)|$
+
+:::
+
+::: {#exm-taylor3}
+Sea $f(x)=e^x\,cos(x)$ y $x_0=0$
+
+a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+
+b) Usar $P_5(0.5)$ para aproximar $f(0.5)$. 
+
+c) Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
+
+:::
+
+
+::: {#exm-taylor4}
+Consideremos la función $f(x)=xe^{x^2}$ y $x_0=0$
+
+a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+
+b) Usar $P_5(0.2)$ para aproximar $f(0.2)$. 
+
+c) Encontrar una cota superior para el error $|f(0.2)-P_4(0.2)|$
+
+:::
+
+
+
+
+
+
