@@ -5,7 +5,6 @@ format: html
 editor: visual
 ---
 
-
 Packages requeridos:
 
 ```{python}
@@ -14,58 +13,102 @@ import matplotlib.pyplot as plt
 import math
 ```
 
-
-
-
 ::: {#exm-taylor1}
 Sea $f(x)=(x-1)log(x)$ y $x_0=1$
 
-a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+a)  Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
 
-b) Usar $P_5(0.5)$ para aproximar $f(0.5)$. 
+```{python}
+#| code-fold: true
+#| fig-align: "center"
 
-c) Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
+f = lambda x: (x-1)* np.log(x)
+#p_2 = lambda x: (x-1) ** 2
+#p_3 = lambda x: p_2 - 0.5*(x-1)**3
+#p_4 = lambda x: p_3 + 1/3 *(x-1) ** 4
+#p_5 = lambda x: p_4 - 1/4 *(x-1) ** 5
+#grados = ["Grado 2", "Grado 3", "Grado 4", "Grado 5", "Grado 6", "Grado 7"]
+#No fue necesario utilizar las expresiones anteriores, pues pudimos expresar cada término de la suma en términos del grado
+
+
+x = np.linspace(0.4, 1.5, 200)
+y = np.zeros(len(x))
+
+plt.figure(figsize = (8, 5))
+plt.plot(x, f(x), label= "(x-1)log(x)")
+
+for k in range(2, 8, 1):
+  y =  y + (-1)** k * (x-1)**k/(k-1)
+  plt.plot(x, y, label = f"Grado {k}")
+  
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+b)  Usar $P_5(0.5)$ para aproximar $f(0.5)$.
+
+```{python}
+#| code-fold: true
+
+y = 0
+for k in range(2, 8, 1):
+  y =  y + (-1)** k * (0.5-1)**k/(k-1)
+  print(f"La aproximación de f(0.5) con el polinomio de grado {k} es: {y}")
+
+print("--------------")
+
+print(f"El valor es f(0.5) = {f(0.5)}")
+
+
+```
+
+
+
+
+c)  Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
+
+
+```{python}
+#| code-fold: true
+
+print(f"La cota superior para el error es {132/720}")
+print(f"La diferencia |f(0.5)-P_7(0.5)| = {np.abs(f(0.5)-y)}")
+print(f"¿La diferencia es menor que la cota superior? {np.abs(f(0.5)-y)<132/720}")
+```
+
+
 
 :::
-
-
 
 ::: {#exm-taylor2}
 Sea $f(x)=2x\,cos(2x)-(x-2)^2$ y $x_0=0$
 
-a) Calcular y graficar los polinomios de Taylor hasta grado $n=4$.
+a)  Calcular y graficar los polinomios de Taylor hasta grado $n=4$.
 
-b) Usar $P_4(0.4)$ para aproximar $f(0.4)$. 
+b)  Usar $P_4(0.4)$ para aproximar $f(0.4)$.
 
-c) Encontrar una cota superior para el error $|f(0.4)-P_4(0.4)|$
-
+c)  Encontrar una cota superior para el error $|f(0.4)-P_4(0.4)|$
 :::
 
 ::: {#exm-taylor3}
 Sea $f(x)=e^x\,cos(x)$ y $x_0=0$
 
-a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+a)  Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
 
-b) Usar $P_5(0.5)$ para aproximar $f(0.5)$. 
+b)  Usar $P_5(0.5)$ para aproximar $f(0.5)$.
 
-c) Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
-
+c)  Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
 :::
-
 
 ::: {#exm-taylor4}
 Consideremos la función $f(x)=xe^{x^2}$ y $x_0=0$
 
-a) Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+a)  Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
 
-b) Usar $P_5(0.2)$ para aproximar $f(0.2)$. 
+b)  Usar $P_5(0.2)$ para aproximar $f(0.2)$.
 
-c) Encontrar una cota superior para el error $|f(0.2)-P_4(0.2)|$
-
+c)  Encontrar una cota superior para el error $|f(0.2)-P_4(0.2)|$
 :::
-
-
-
-
-
-
