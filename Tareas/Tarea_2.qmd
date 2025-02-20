@@ -84,6 +84,44 @@ b) $f(x)=x\,cos\,x-3x$.  Puntos: $x_0=0, x_1=0.5, x_2=1, x_3=1.5$.  Aproximar $f
 
 c) $f(x)=log(e^x+2)$.  Puntos: $x_0=-2, x_1=-1, x_2=0, x_3=1, x_4=2$.  Aproximar $f(0.5)$ y $f'(0.5)$.
 
+
+```{python}
+#| code-fold: true
+#| fig-align: "center"
+
+
+f = lambda x: np.log(np.exp(x)+2)
+f_der = lambda x: np.exp(x)/(np.exp(x)+2)
+x = np.arange(-2,3)
+y = f(x)
+
+poli_lagrange = lagrange(x,y)
+poli_spnat = CubicSpline(x,y, bc_type= "natural")
+poli_spcond = CubicSpline(x,y, bc_type= ((1,f_der(x[0])), (1,f_der(x[-1]))))
+
+x_values = np.linspace(-2.5, 2.5, 500)
+
+plt.figure(figsize=(8,5))
+plt.plot(x_values, poli_lagrange(x_values), label="Lagrange")
+plt.plot(x_values, poli_spnat(x_values), label="Spline Natural")
+plt.plot(x_values, poli_spcond(x_values), label="Spline Cond")
+plt.plot(x, y,'o', label="Nodos")
+plt.grid()
+plt.legend()
+plt.show()
+
+```
+
+```{python}
+poli_lagrange(0.5)
+poli_spnat(0.5)
+poli_spcond(0.5)
+f(0.5)
+```
+
+
+
+
 :::
 
 
@@ -141,6 +179,11 @@ i. Genera una sucesión desde 0 hasta 10 con la función `np.arange` y asígnalo
 ii. Del conjunto $\{-25, -24, \dots, 24, 25\}\subset\mathbb{Z}$ toma una muestra con reemplazo que tenga la misma cantidad de elementos de $x$ y asígnalo a la variable $y$ (utilizar la función `np.random.choice`).  
 
 iii. Encuentra el spline cúbico que que contiene a los puntos generados.
+
+
+
+
+
 
 :::
 
