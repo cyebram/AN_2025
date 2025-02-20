@@ -1,0 +1,161 @@
+---
+title: "Tarea 2. Interpolación"
+author: "Mi nombre"
+format: html
+editor: visual
+lang: es
+---
+
+Importamos packages y funciones necesarias:
+
+```{python}
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+from scipy.interpolate import lagrange
+from numpy.polynomial.polynomial import Polynomial
+from scipy.interpolate import CubicSpline
+```
+
+
+::: {#exr-tarea2_1}
+
+Sea $f(x)=e^x\,cos(x)$ y $x_0=0$
+
+a)  Calcular y graficar los polinomios de Taylor hasta grado $n=5$.
+
+b)  Usar $P_5(0.5)$ para aproximar $f(0.5)$.
+
+c)  Encontrar una cota superior para el error $|f(0.5)-P_5(0.5)|$
+
+:::
+
+
+::: {#exr-tarea2_2}
+
+Consideremos los siguientes puntos en $\mathbb{R}^2$:
+
+\begin{equation}
+\begin{array}{l|c|c|c|c|} 
+\text{x} & 0 & 1 & 2 & 3 \\
+\hline \text{y} & y_0 & y_1 & y_2 & y_3  
+\end{array}
+\end{equation}
+
+
+
+a) Encontrar y graficar los polinomios base para el polinomio de Lagrange que contiene a los puntos. 
+
+b) Calcular y graficar el polinomio de Lagrange.
+
+:::
+
+
+
+
+::: {#def-errores}
+
+Supongamos que $p^*$ es una aproximación de $p$. El **error real** es $p-p^*$, el **error absoluto** es $|p-p^*|$ y el error relativo es
+
+\begin{equation}
+\frac{|p-p^*|}{|p|},
+\end{equation}
+
+siempre y cuando $p\neq 0$.
+
+:::
+
+
+::: {#exr-tarea2_3}
+
+En cada inciso considera la función de valores reales y realiza lo siguiente:
+
+i. Grafica los polinomios interpolantes de Lagrange con los puntos dados y aproxima el valor de la función y la derivada en el punto solicitado.  
+
+ii. Grafica los splines cúbicos con frontera natural para los puntos dados y aproxima el valor de la función y la derivada en el punto solicitado.
+
+iii. Grafica los splines cúbicos con frontera condicionada para los puntos dados y aproxima el valor de la función y la derivada en el punto solicitado.
+
+En cada caso calcula el error real, el absoluto y el relativo.
+
+a) $f(x)=e^{2x}$.  Puntos: $x_0=0, x_1=0.25, x_2=0.5, x_3=0.75$.  Aproximar $f(0.43)$ y $f'(0.43)$.
+
+b) $f(x)=x\,cos\,x-3x$.  Puntos: $x_0=0, x_1=0.5, x_2=1, x_3=1.5$.  Aproximar $f(0.8)$ y $f'(0.8)$.
+
+c) $f(x)=log(e^x+2)$.  Puntos: $x_0=-2, x_1=-1, x_2=0, x_3=1, x_4=2$.  Aproximar $f(0.5)$ y $f'(0.5)$.
+
+:::
+
+
+
+::: {#exr-tarea2_4}
+
+Se sospecha que las elevadas concentraciones de tanina en las hojas de los robles maduros inhiben el crecimiento de las larvas de la polilla invernal (*Operophtera bromata L. Geometridae*) que tanto dañan a los árboles en algunos años.  La tabla anexa contiene el peso promedio de dos muestras de larva, tomadas en los primeros 28 días después de nacimiento.  La primera muestra se crió en hojas de robles jóvenes, mientras que la segunda lo hizo en hojas maduras del mismo árbol.
+
+a) Usa la interpolación polinomial (Lagrange) para aproximar la curva del peso promedio de cada muestra.
+
+b) Usa splines cúbicos para aproximar la curva del peso promedio de cada muestra.
+
+\begin{equation}
+\begin{array}{l|c|c|c|c|c|c|r} 
+\text{Día} & 0 & 6 & 10 & 13 & 17 & 20 & 28 \\
+\hline \text{Peso promedio muestra 1 (mg)} & 6.67 & 17.33 & 42.67 & 37.33 & 30.10 & 29.31 & 28.74 \\
+\text{Peso promedio muestra 2 (mg)} & 6.67 & 16.11 & 18.89 & 15.00 & 10.56 & 9.44 & 8.89
+\end{array}
+\end{equation}
+
+
+:::
+
+
+
+
+::: {#exr-tarea2_5}
+
+Considera la siguiente tabla de datos para el agua:
+
+\begin{equation}
+\begin{array}{|l|c|c|c|c|c|} 
+\hline \text{T(°C)} & 50 & 60 & 65 & 75 & 80\\
+ \text{$\rho (kg/m^3)$} & 988 & 985.7 & 980.5 & 974.8 & 971.6  \\
+\hline
+\end{array}
+\end{equation}
+
+
+Donde $T$ es la temperatura y $\rho$ es la densidad.  
+
+a) Hacer la representación gráfica del spline cúbico y compararlo con el polinomio interpolante $P_4(x)$.
+
+b) Aproximar la densidad para $T=63 °C$ y también la derivada.
+
+:::
+
+
+::: {#exr-tarea2_6}
+
+Llevar a cabo lo siguiente:
+
+i. Genera una sucesión desde 0 hasta 10 con la función `np.arange` y asígnalo a la variable $x$.
+
+ii. Del conjunto $\{-25, -24, \dots, 24, 25\}\subset\mathbb{Z}$ toma una muestra con reemplazo que tenga la misma cantidad de elementos de $x$ y asígnalo a la variable $y$ (utilizar la función `np.random.choice`).  
+
+iii. Encuentra el spline cúbico que que contiene a los puntos generados.
+
+:::
+
+
+
+::: {#exr-tarea2_7}
+
+Construye los splines cúbicos condicionados en $n$ nodos, donde $n= 4,5, 10, 20$ para las siguientes funciones en el intervalo dado. Con el de $n=20$ nodos calcula la diferencia máxima entre la función y el spline tomando 500 puntos distribuidos de manera uniforme en el intervalo.
+
+a) $f(x) = e^{2x}\, cos 3x$, $[0,2]$. 
+
+b) $f(x) = sen(log\,x)$, $[1,10]$.
+
+c) $f(x) = e^{x}+e^{-x}$, $[0,3]$. 
+
+d) $f(x) = cos \,x+sen\,x$, $[0,2\pi]$.
+
+:::

@@ -1,0 +1,159 @@
+---
+title: "Ejemplos. Interpolación"
+format: html
+editor: visual
+---
+
+
+
+Packages requeridos:
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+from scipy.interpolate import lagrange
+from numpy.polynomial.polynomial import Polynomial
+from scipy.interpolate import CubicSpline
+```
+
+
+Para los ejemplos se consideran los siguientes puntos en $\mathbb{R}^2$:
+
+\begin{equation}
+\begin{array}{l|c|c|c|c|} 
+\text{x} & 0 & 1 & 2 & 3 \\
+\hline \text{y} & 1 & -4 & -7 & -2  
+\end{array}
+\end{equation}
+
+
+
+Encontrar y graficar los polinomios base para el polinomio de Lagrange que contiene a los puntos. 
+
+```{python}
+#| code-fold: true
+
+val_x = [0 ,1,2,3]
+val_y = [1 ,-4,-7,-2]
+
+
+L1 = lambda x: (x-val_x[1])*(x-val_x[2])*(x-val_x[3])/((val_x[0]-val_x[1])*(val_x[0]-val_x[2])*(val_x[0]-val_x[3]))
+
+L2 = lambda x: (x-val_x[0])*(x-val_x[2])*(x-val_x[3])/((val_x[1]-val_x[0])*(val_x[1]-val_x[2])*(val_x[1]-val_x[3]))
+
+L3 = lambda x: (x-val_x[0])*(x-val_x[1])*(x-val_x[3])/((val_x[2]-val_x[0])*(val_x[2]-val_x[1])*(val_x[2]-val_x[3]))
+
+L4 = lambda x: (x-val_x[0])*(x-val_x[1])*(x-val_x[2])/((val_x[3]-val_x[0])*(val_x[3]-val_x[1])*(val_x[3]-val_x[2]))
+
+xnew = np.linspace(-0.5, 3.5, 500)
+x_zeros = np.zeros(len(val_x))
+x_ones = np.ones(len(val_x))
+
+plt.figure(figsize=(8,5))
+plt.plot(xnew,  L1(xnew), label="L1")
+plt.plot(xnew,  L2(xnew), label="L2")
+plt.plot(xnew,  L3(xnew), label="L3")
+plt.plot(xnew,  L4(xnew), label="L4")
+plt.plot(val_x, x_zeros,'o', color="black")
+plt.plot(val_x, x_ones, 'o', color="black")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+Encontrar y graficar el polinomio de Lagrange.
+
+```{python}
+#| code-fold: true
+
+p = lambda x: val_y[0]*L1(x)+ val_y[1]*L2(x) +val_y[2]*L3(x)+val_y[3]*L4(x)
+
+plt.figure(figsize=(8,5))
+plt.plot(xnew,  p(xnew), label="Polinomio")
+plt.plot(val_x,val_y, "o", ms=6, label="Datos")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+
+Consideremos $x_1=0, x_2=1, x_3=2, ... x_{10}=9$ asignar valores arbitrarios de $y$ y calcular polinomio con la función `lagrange`.
+
+
+
+```{python}
+#| code-fold: true
+
+x= np.arange(0, 10, 1)
+y = [-1, 8, 9, -10, -5, -16, 8, 0, 1, 2]
+
+polinomio = lagrange(x,y)
+
+x_new = np.linspace(-0.01, 9.01,  500)
+
+plt.figure(figsize=(8,5))
+plt.plot(x_new, polinomio(x_new), color="magenta", label = "Polinomio")
+plt.plot(x, y, "o", label="Datos") 
+plt.grid()
+plt.legend()
+plt.show()
+
+```
+
+
+
+Retomando los puntos de la tabla inicial, encontrar los splines cúbicos con condición de frontera natural.
+
+```{python}
+#| code-fold: true
+
+val_x = [0 ,1,2,3]
+val_y = [1 ,-4,-7,-2]
+
+
+S0= lambda x: 1 -5*(x-val_x[0])
+S1= lambda x: -4 -5*(x-val_x[1])+2*(x-val_x[1])**3
+S2= lambda x: -7 + (x-val_x[2])+6*(x-val_x[2])**2 -2*(x-val_x[2])**3
+
+x0 = np.linspace(0, 1, 100)
+x1 = np.linspace(1, 2, 100)
+x2 = np.linspace(2, 3, 100)
+
+plt.figure(figsize=(8,5))
+plt.plot(x0,  S0(x0), label="S0")
+plt.plot(x1,  S1(x1), label="S1")
+plt.plot(x2,  S2(x2), label="S2")
+plt.plot(val_x,val_y, "o", ms=6, label="Datos")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+Utilizando la función `CubicSpline` de `scipy.interpolate`
+
+```{python}
+#| code-fold: true
+
+my_spline = CubicSpline(val_x, val_y, bc_type="natural")
+
+xnew = np.linspace(-0.5, 3.5, 500)
+
+plt.figure(figsize=(8,5))
+plt.plot(xnew,  my_spline(xnew), label="Spline cúbico")
+plt.plot(val_x,val_y, "o", ms=6, label="Datos")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+
+
+
+
+
