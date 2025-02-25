@@ -1,0 +1,103 @@
+---
+title: "Ejemplos 6. Regresión Lineal"
+author: "Análisis Numérico"
+date: "Febrero 2025"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 1
+    theme: cerulean
+---
+
+
+
+
+
+<style>
+body {
+text-align: justify}
+</style>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+library(pracma)
+library(plotly)
+library(MASS)
+library(ISLR2)
+library(car)
+library(corrplot)
+library(rgl)
+knitr::knit_hooks$set(webgl = hook_webgl)
+```
+
+
+# Conjunto de datos *Credit*
+
+```{r}
+data(Credit)
+head(Credit)
+glimpse(Credit)
+```
+
+
+
+
+# Distribución de variables (histogramas) {.tabset}
+
+## Income
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Income, fill=Student), color="black")+
+  scale_fill_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+
+```
+
+
+
+## Limit
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Limit, fill=Student), color="black")+
+  scale_fill_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+
+```
+
+
+
+
+# Diagramas de dispersión (scatter plots) {.tabset}
+
+
+## Income vs Limit
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Income, Limit, color=Student), size=2)+
+  geom_smooth(aes(Income, Limit), method="lm", size=1, se=FALSE)+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+## Income vs Rating
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Income, Rating, color=Student), size=2)+
+  geom_smooth(aes(Income, Rating), method="lm", size=1, se=FALSE)+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+
+
+
+
