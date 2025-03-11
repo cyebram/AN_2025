@@ -1,0 +1,201 @@
+---
+title: "Ejemplos 7. Preliminar Tarea 3. Get data"
+author: "Análisis Numérico"
+date: "Marzo 2025"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 1
+    theme: cerulean
+---
+
+
+
+
+
+<style>
+body {
+text-align: justify}
+</style>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+library(pracma)
+library(plotly)
+library(MASS)
+#library(ISLR2)
+library(car)
+library(corrplot)
+library(rgl)
+library(scatterPlotMatrix)
+
+
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(quantmod)
+library(xts)
+library(zoo)
+library(dygraphs)
+knitr::knit_hooks$set(webgl = hook_webgl)
+```
+
+
+
+El objetivo de este archivo es obtener datos para llevar a cabo la Tarea 3 del curso Análisis Numérico. 
+
+
+# Indicadores económicos INEGI
+
+Inicialmente es necesario descargar el archivo de las series originales mensuales de los indicadores económicos que proporciona el [INEGI](https://www.inegi.org.mx/app/tablero/). Es necesario hacer una exploración preliminar del archivo para identificar las filas requeridas (en este caso fue desde la fila 2 hasta la 386).
+
+
+```{r}
+#Recuerda que es importante brindar de manera adecuada la ruta donde se encuentra el archivo
+inegi_ie <- read_xls("./BIE_BIE20250304133009.xls", range = cell_rows(2:386))
+```
+
+Dado que los nombres de las columnas (indicadores) es muy extenso, será conveniente brindar nuevos nombres (sin espacios, ni caracteres especiales, a excepción de los guiones bajos) que sean representativos. 
+
+
+```{r}
+names(inegi_ie) <- c("Periodo", "IGAE", "Actividades_Primarias", "Actividad_Industrial", "IVF_Construccion",
+  "Actividades_Terciarias", "Ingresos_Retail", "Inversion_Fija_Bruta",
+  "IP_Consumidor", "IP_Consumidor_Subyacente", "IP_Productor",
+  "Tasa_Desocupacion_Urbana", "Tendencia_Empleo_Manufacturas",
+  "Asegurados_IMSS", "Expectativa_Personal_Ocupado",
+  "Importaciones_Totales", "Importaciones_No_Petroleras",
+  "Exportaciones_Totales", "Exportaciones_Petroleras",
+  "Exportaciones_No_Petroleras", "Precio_Promedio_Petroleo",
+  "TIIE", "Cetes_28_Dias", "Tasa_Fondeo_Gubernamental",
+  "Tipo_Cambio_Nominal", "Tipo_Cambio_Real_Multilateral",
+  "IPC_BMV", "Reservas_Internacionales",
+  "Confianza_Empresarial", "Indicador_Tendencia_Agregado",
+  "Pedidos_Manufactureros", "Confianza_Consumidor",
+  "Expectativa_Uso_Planta_Equipo", "Expectativa_Inventarios_Insumos",
+  "IPI_EUA", "Produccion_Manufacturera_EUA",
+  "Comercio_Retail_EUA", "Tasa_Desempleo_EUA",
+  "Empleo_EUA", "Tasa_Bonos_Tesoro_EUA",
+  "SP500", "Dow_Jones", "Confianza_Consumidor_EUA"
+)
+
+```
+
+Para que el periodo tenga formato de fecha es necesario utilizar la función `ym` (year-month) del package `lubridate`.
+
+```{r}
+inegi_ie$Periodo <- ym(inegi_ie$Periodo)
+write.xlsx(inegi_ie, "./inegi_data.xlsx")
+glimpse(inegi_ie)
+```
+
+En total son 42 indicadores, se sugiere trabajar con un subconjunto de estos. En particular es útil escoger aquellos que pertenezcan a la misma clasificación:
+
+```{r}
+Produccion <- names(inegi_ie)[2:6]
+Produccion
+Demanda <- names(inegi_ie)[7:8]
+Demanda
+Precios <- names(inegi_ie)[9:11]
+Precios
+Mercado_laboral <- names(inegi_ie)[12:15]
+Mercado_laboral
+Sector_externo <- names(inegi_ie)[16:21]
+Sector_externo
+Mercado_financiero <- names(inegi_ie)[22:28]
+Mercado_financiero
+Opinion <- names(inegi_ie)[29:34]
+Opinion
+Ind_EUA <- names(inegi_ie)[35:43]
+Ind_EUA
+```
+
+
+Por ejemplo, a continuación seleccionamos los indicadores de Producción, Precios, Sector externo y Mercado financiero. 
+
+
+```{r}
+inegi_subconjunto <- inegi_ie |> dplyr::select(Periodo, all_of(c(Produccion, Precios, Sector_externo, Mercado_financiero)))
+glimpse(inegi_subconjunto)
+```
+
+Contamos valores ausentes (NA).
+
+```{r}
+colSums(is.na(inegi_subconjunto))
+```
+
+En este caso, dada la cantidad de valores ausentes en el indicador de precios productor (IP_Productor), se descarta. Posteriormente nos quedamos con las observaciones completas.
+
+```{r}
+inegi_subconjunto <- inegi_subconjunto |> dplyr::select(-IP_Productor) |> drop_na()
+glimpse(inegi_subconjunto)
+```
+
+Lo guardamos en un archivo xlsx para usarlo en la Tarea 3.
+
+```{r}
+write.xlsx(inegi_subconjunto, "./inegi_subdata.xlsx")
+#La siguiente función lee los datos seleccionados:
+#inegi_subconjunto <- read.xlsx("./inegi_subdata.xlsx", detectDates = TRUE)
+```
+
+
+
+
+# Valores financieros
+
+Utilizamos el package `quantmod` para descargar valores financieros desde [Yahoo Finance](https://finance.yahoo.com/). Ejemplo NVDA.
+
+
+```{r}
+begin_date ="2020-01-01"
+end_date = "2025-03-03"
+getSymbols("NVDA", src = "yahoo", from = begin_date, to = end_date, periodicity = "daily")
+
+chartSeries(NVDA)
+```
+
+Descargamos los valores de 10 compañías (verificar que todas tengan valores en el periodo escogido), nótese que en cada caso se almacena como un objeto del tipo `xts` - `zoo` (series temporales).
+
+
+```{r}
+tickers <- c("AAPL", "AMZN", "META", "GOOG", "NVDA", "NFLX", "AMD", "MSFT", "DIS", "BA")
+getSymbols(tickers, src = "yahoo", from = begin_date, to = end_date, periodicity = "daily")
+class(AAPL)
+
+```
+
+
+A continuación se filtran los valores de cierre y se guarda como `precio_cierre.RDS` (este es un objeto del tipo xts-zoo, no es un data frame)
+
+```{r}
+lista <- lapply(tickers, function(x) Cl(get(x)))
+precio_cierre <- do.call(merge,lista)
+
+dygraph(precio_cierre)
+saveRDS(precio_cierre, "precio_cierre.RDS")
+# La siguiente función se utilizaría para leer el objeto precio_cierre.RDS
+#precio_cierre <- readRDS("precio_cierre.RDS")
+
+
+
+```
+
+
+
+Ahora convertimos las series de tiempo a un data frame y lo guardamos en un archivo xslx para utilizarlo en la Tarea 3.
+
+
+
+```{r}
+precio_cierre_df <- as.data.frame(precio_cierre)
+precio_cierre_df <- mutate(precio_cierre_df, Fecha= index(precio_cierre), .before = 1)
+glimpse(precio_cierre_df)
+write.xlsx(precio_cierre_df, "precio_cierre_df.xlsx")
+```
+

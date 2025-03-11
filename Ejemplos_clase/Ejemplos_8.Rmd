@@ -1,0 +1,260 @@
+---
+title: "Introducción a las Series Temporales en R"
+author: "Análisis Numérico"
+date: "Marzo 2025"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 1
+    theme: cerulean
+---
+
+
+
+
+
+<style>
+body {
+text-align: justify}
+</style>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+library(pracma)
+library(plotly)
+library(MASS)
+library(car)
+library(corrplot)
+library(rgl)
+library(RColorBrewer)
+
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(quantmod)
+library(xts)
+library(zoo)
+library(dygraphs)
+library(mFilter)
+library(TSstudio)
+library(timetk)
+library(forecast)
+library(tseries)
+knitr::knit_hooks$set(webgl = hook_webgl)
+```
+
+
+# Gráficas de una serie temporal {.tabset}
+
+Las **series temporales** es una sucesión de observaciones registradas a intervalos de tiempo regulares. Son fundamentales en modelado predictivo y análisis de datos en diversas disciplinas.
+
+
+Consideraremos el tipo de cambio nominal (pesos por dólar) con una frecuencia mensual.
+
+## Serie 
+
+```{r echo=FALSE}
+inegi_data <- read.xlsx("./inegi_data.xlsx", detectDates = TRUE)
+inegi_data <- inegi_data |> filter(year(Periodo)>=2016)
+
+
+MXN_xts <- xts(inegi_data$Tipo_Cambio_Nominal, order.by=inegi_data$Periodo)
+MXN_ts <- ts(inegi_data$Tipo_Cambio_Nominal, start = c(2016, 1), frequency = 12)
+ts_info(MXN_xts)
+ts_plot(MXN_xts, slider=TRUE)
+```
+
+
+## Comparación anual
+
+```{r echo=FALSE}
+ts_seasonal(MXN_xts, type = "normal", palette_normal = "Paired")
+```
+
+## Comparación mensual
+
+```{r echo=FALSE}
+ts_seasonal(MXN_xts, type = "cycle", palette = "Paired")
+```
+
+
+## Boxplot trimestral
+
+```{r echo=FALSE}
+plot_time_series_boxplot(inegi_data,  Periodo, Tipo_Cambio_Nominal, .period= "3 months", .color_var = year(Periodo), .interactive=TRUE, .smooth = FALSE)
+```
+
+
+## Heatmap
+
+```{r echo=FALSE}
+ts_heatmap(MXN_ts, color="Spectral")
+```
+
+
+## Surface
+
+```{r echo=FALSE}
+ts_surface(MXN_ts)
+```
+
+
+
+# Estadísticas de una serie temporal
+
+## Media muestral
+
+La media muestral es el promedio de los valores de la serie temporal a lo largo del tiempo. Se calcula como:
+
+\begin{equation}
+\bar{y}=\frac{1}{T} \sum_{t=1}^T y_t
+\end{equation}
+
+Donde $T$ es el número total de observaciones de la serie y $y_t$ es el valor de la serie en el tiempo $t$.
+
+
+```{r}
+mean(MXN_ts)
+```
+
+## Varianza muestral 
+
+La varianza muestral cuantifica la dispersión de los valores de la serie alrededor de su media. Se calcula como:
+
+
+\begin{equation}
+s^2=\frac{1}{T-1} \sum_{t=1}^T (y_t-\bar{y})^2
+\end{equation}
+
+
+```{r}
+var(MXN_ts)
+```
+
+
+## Autocovarianza muestral
+
+Cuantifica la covarianza entre dos valores de la serie separados por un retraso (lag) $k$. Se calcula como:
+
+\begin{equation}
+\gamma_k=\frac{1}{T} \sum_{t=k+1}^T (y_t-\bar{y})(y_{t-k}-\bar{y})
+\end{equation}
+
+En este caso $y_{t-k}$ es el valor de la serie en el tiempo $t-k$.
+
+
+## Autocorrelación muestral {.tabset}
+
+Es una versión normalizada de la autocovarianza, que mide la correlacion entre dos valores de la serie separados por un retraso $k$, se calcula como:
+
+\begin{equation}
+\rho_k=\frac{\gamma_k}{\gamma_0}
+\end{equation}
+
+
+### Autocorrelación
+
+```{r echo=FALSE}
+ts_cor(MXN_ts, type = "acf")
+```
+
+
+### Lags
+
+```{r echo=FALSE}
+ts_lags(MXN_ts)
+```
+
+
+
+## Estacionariedad
+
+Una serie temporal es **estacionaria** si la media y la varianza es constante a lo largo del tiempo y la autocovarianza entre dos puntos depende sólo de la distancia temporal entre ellos, no del momento específico.
+
+Se aplica la preuva de Dickey-Fuller (ADF)
+
+```{r}
+adf.test(MXN_ts, alternative="stationary")
+```
+
+## Diferenciación
+
+Si la serie no es estacionaria se puede aplicar diferenciación para eliminar la tendencia.
+
+
+```{r}
+MXN_diff <- diff(MXN_ts, differences = 1)
+ts_plot(MXN_diff, slider=TRUE)
+adf.test(MXN_diff, alternative="stationary")
+```
+
+
+
+# Descomposición  {.tabset}
+
+Una serie temporal $y_t$ puede descomponerse en la suma (aditiva) de sus componentes principales:
+
+
+\begin{equation}
+y_t = T_t+S_t+R_t
+\end{equation}
+
+Donde $T_t$ es la tendencia (movimiento a largo plazo), $S_t$ es la estacionalidad (patrones repetitivos en intervalos regulares) y $R_t$ es el residuo (ruido aleatorio). O bien, de manera multiplicativa:
+
+\begin{equation}
+y_t = T_t S_t R_t
+\end{equation}
+
+## Serie original
+
+```{r echo=FALSE}
+ts_decompose(MXN_ts, type = "both")
+```
+
+
+## Serie diferenciada
+
+```{r echo=FALSE}
+ts_decompose(MXN_diff, type = "both")
+```
+
+
+
+
+# AutoRegresión {.tabset}
+
+## Coeficientes
+
+```{r echo=FALSE}
+MXN_ar <- ar(MXN_ts, method = "mle", order.max = 5)
+MXN_ar
+```
+
+## Gráfica
+
+```{r echo=FALSE}
+MXN_ar_res <- cbind(MXN_ts, MXN_ts-MXN_ar$resid)
+colnames(MXN_ar_res) <- c("MXN", "MXN_fitted")
+ts_plot(MXN_ar_res)
+
+```
+
+
+## Residuos
+
+```{r echo=FALSE}
+ts_plot(MXN_ar$resid)
+```
+
+
+## Forecast
+
+```{r}
+MXN_forecast <- forecast(MXN_ar, h=12)
+plot_forecast(MXN_forecast)
+```
+
