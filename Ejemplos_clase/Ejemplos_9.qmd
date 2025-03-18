@@ -1,0 +1,136 @@
+---
+title: "Ejemplos 9. Diferenciación e integración numérica"
+format: html
+editor: visual
+---
+
+Packages requeridos:
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+#Para instalar plotly hay que escribir en la terminal: py -m pip install plotly
+import plotly.graph_objects as go
+from scipy.differentiate import derivative
+#Para instalar numdifftools hay que escribir en la terminal: py -m pip install numdifftools
+import numdifftools as nd
+```
+
+
+Aproximar la derivada de la función $f(x) = xe^x$ en el intervalo $[-1, 1]$ con la fórmula del punto medio de tres puntos para tamaños de paso $h=0.1$ y $h=0.25$
+
+
+```{python}
+#| code-fold: true
+
+def myder_3p(x, h):
+  myder = (f(x+h)-f(x-h))/(2*h)
+  return(myder)
+
+f= lambda x: x*np.exp(x)
+derf = lambda x: x*np.exp(x)+np.exp(x)
+
+
+x_values = np.linspace(-1, 1, 100)
+
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,  myder_3p(x_values, 0.1), label="h=0.1")
+plt.plot(x_values,  myder_3p(x_values, 0.25), label="h=0.25")
+plt.plot(x_values,derf(x_values), label="Derivada")
+plt.grid()
+plt.legend()
+plt.show()
+
+  
+```
+
+Dado que las gráficas están superponen, conveniente utilizar una gráfica con plotly.
+
+
+
+
+```{python}
+#| code-fold: true
+
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x= x_values, y= myder_3p(x_values, 0.1), mode='lines', name='h=0.1', line=dict(color='teal', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= myder_3p(x_values, 0.25), mode='lines', name='h=0.25', line=dict(color='royalblue', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= derf(x_values), mode='lines', name='Derivada', line=dict(color='goldenrod', width=1)))
+
+# Configurar diseño de la gráfica
+fig.update_layout(
+    title="Gráfica de aproximación de las derivadas",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white"
+)
+
+fig.show()
+```
+
+
+
+Gráfica de los errores
+
+
+```{python}
+#| code-fold: true
+
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x= x_values, y= abs(derf(x_values)-myder_3p(x_values, 0.1)), mode='lines', name='h=0.1', line=dict(color='teal', width=2)))
+fig.add_trace(go.Scatter(x= x_values, y= abs(derf(x_values)-myder_3p(x_values, 0.25)), mode='lines', name='h=0.25', line=dict(color='royalblue', width=2)))
+
+
+# Configurar diseño de la gráfica
+fig.update_layout(
+    title="Gráfica de errores (valor absoluto)",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white"
+)
+
+fig.show()
+```
+
+
+
+Utilizando las funciones de numdifftools, numpy y Scipy
+
+
+```{python}
+#| code-fold: true
+
+
+df_01 = nd.Derivative(f, step=0.1, method='central', order=2)
+df_025 = nd.Derivative(f, step=0.25, method='central', order=2)
+fig = go.Figure()
+
+
+
+fig.add_trace(go.Scatter(x= x_values, y= df_01(x_values), mode='lines', name='h=0.1', line=dict(color='teal', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= df_025(x_values), mode='lines', name='h=0.25', line=dict(color='royalblue', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= np.gradient(f(x_values), x_values, edge_order=2), mode='lines', name='np.gradient', line=dict(color='red', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= derivative(f, x_values).df, mode='lines', name='SciPy', line=dict(color='aqua', width=2)))
+fig.add_trace(go.Scatter(x= x_values, y= derf(x_values), mode='lines', name='Derivada', line=dict(color='goldenrod', width=1)))
+
+# Configurar diseño de la gráfica
+fig.update_layout(
+    title="Gráfica de aproximación de las derivadas",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white"
+)
+
+fig.show()
+```
+
+
+
+
+
+
