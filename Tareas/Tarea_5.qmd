@@ -1,0 +1,194 @@
+---
+title: "Tarea 5. Diferenciación e integración numérica."
+author: "Mi nombre"
+format: 
+  html:
+    grid: 
+      body-width: 1000px
+editor: visual
+jupyter: python3
+---
+
+Importamos packages y funciones necesarias:
+
+```{python}
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+from scipy.interpolate import lagrange
+from numpy.polynomial.polynomial import Polynomial
+from scipy.interpolate import CubicSpline
+
+import plotly.graph_objects as go
+from scipy.differentiate import derivative
+import numdifftools as nd
+from scipy.stats import norm
+from scipy import integrate
+
+```
+
+# Ejercicio 1.
+
+Para cada una de las siguientes funciones:
+
+* Realiza la respectiva gráfica en el intervalo dado.  
+
+* Compara las gráficas de las derivadas aproximadas de la función `derivative` de `Scipy`, con dos tamaños de paso utilizando la función `nd.Derivative` y la derivada *exacta* en tal intervalo. 
+
+* Compara las gráficas de las segundas derivadas aproximadas con dos tamaños de paso utilizando la función `nd.Derivative` y la segunda derivada *exacta* en tal intervalo.
+
+* Realiza las gráficas de los errores absolutos en cada caso.
+
+
+
+a) $f(x)=e^{2x}-cos 2x$, $x\in [0,2]$
+
+b) $f(x)=log(x+2)-(x+1)^2$, $x\in [0,5]$
+
+c) $f(x)=\sqrt{x} sen(x^2)$, $x\in [0,\pi]$
+
+d) $f(x)=(cos\,3x)^2-e^{2x}$, $x\in [0,\pi/2]$
+
+
+# Ejericicio 2
+
+Aproximar las siguientes integrales, cada caso hacer una gráfica de la función e indicar el área bajo la curva.
+
+a)
+
+\begin{equation}
+\int_0^1 e^{-x^2}\,dx
+\end{equation}
+
+
+b) 
+
+\begin{equation}
+\int_0^\pi sen(x^2)\,dx
+\end{equation}
+
+c) 
+
+\begin{equation}
+\int_0^\pi \frac{sen(x)}{x}\,dx
+\end{equation}
+
+
+d) 
+
+\begin{equation}
+\int_0^\infty e^{-x^2} cos(x) \,dx
+\end{equation}
+
+
+e) 
+
+\begin{equation}
+\int_0^1 x^x \,dx
+\end{equation}
+
+
+f) 
+
+\begin{equation}
+\int_1^5 e^{-x^2} x^3 dx
+\end{equation}
+
+
+g) 
+
+\begin{equation}
+\int_0^1 \sqrt{1-x^2} dx
+\end{equation}
+
+
+h) 
+
+\begin{equation}
+\int_0^\infty \frac{x}{e^x-1} dx
+\end{equation}
+
+
+
+i) 
+
+\begin{equation}
+\int_0^1 \frac{1}{\sqrt{x^4+1}} dx
+\end{equation}
+
+
+# Ejercicio 3
+
+Aproximar las siguientes integrales dobles y triples, llevar a cabo la gráfica cuando se indique y comparar con el valor *exacto* de la integral.
+
+a) Realizar gráfica
+
+
+\begin{equation}
+\int_{-1}^{1}\int_1^2 (3y^2-x^2+5) dx dy
+\end{equation}
+
+b) 
+
+\begin{equation}
+\int_{0}^{6}\int_1^5 \sqrt{x+4y} dx dy
+\end{equation}
+
+
+c) 
+
+\begin{equation}
+\int_{1}^{e}\int_0^{log(x)} x^3 dx dy
+\end{equation}
+
+
+d) 
+
+\begin{equation}
+\int\int_D 30ye^x dx dy
+\end{equation}
+
+Donde $D\subset \mathbb{R}^2$ es la región en la siguiente gráfica. 
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+
+
+
+x_val = np.array([0,4])
+y_val1 = np.array([0, 1])
+y_val2 = np.array([0, 4])
+
+plt.figure(figsize=(8,6))
+plt.plot(x_val, y_val1)
+plt.plot(x_val, y_val2)
+plt.fill_between(x_val, y1=y_val1, y2=y_val2, color="firebrick", alpha=0.5)
+plt.grid()
+plt.show()
+
+  
+```
+
+
+e) 
+
+\begin{equation}
+\int\int \int_B z e^{x+y} dx\, dy\, dz, \, B=[0,1] \times [0,1] \times [0,1]
+\end{equation}
+
+
+f) 
+
+\begin{equation}
+\int_0^1 \int_0^x \int_0^y (y+xz) dz\, dy\, dx
+\end{equation}
+
+
+
+# Ejercicio 4
+
+De [scipy.stats](@https://docs.scipy.org/doc/scipy/reference/stats.html) elige alguna distribución de probabilidad continua, realiza la gráfica y encuentra la probabilidad que la variable aleatoria tome un valor en un intervalo dado. Compara el resultado con el método `cdf`.
