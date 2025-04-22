@@ -33,124 +33,467 @@ from scipy import integrate
 
 Para cada una de las siguientes funciones:
 
-* Realiza la respectiva gráfica en el intervalo dado.  
+-   Realiza la respectiva gráfica en el intervalo dado.
 
-* Compara las gráficas de las derivadas aproximadas de la función `derivative` de `Scipy`, con dos tamaños de paso utilizando la función `nd.Derivative` y la derivada *exacta* en tal intervalo. 
+-   Compara las gráficas de las derivadas aproximadas de la función `derivative` de `Scipy`, con dos tamaños de paso utilizando la función `nd.Derivative` y la derivada *exacta* en tal intervalo.
 
-* Compara las gráficas de las segundas derivadas aproximadas con dos tamaños de paso utilizando la función `nd.Derivative` y la segunda derivada *exacta* en tal intervalo.
+-   Compara las gráficas de las segundas derivadas aproximadas con dos tamaños de paso utilizando la función `nd.Derivative` y la segunda derivada *exacta* en tal intervalo.
 
-* Realiza las gráficas de los errores absolutos en cada caso.
+-   Realiza las gráficas de los errores absolutos en cada caso.
+
+a)  $f(x)=e^{2x}-cos 2x$, $x\in [0,2]$
+
+b)  $f(x)=log(x+2)-(x+1)^2$, $x\in [0,5]$
+
+c)  $f(x)=\sqrt{x} sen(x^2)$, $x\in [0,\pi]$
+
+Gráfica de la función.
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
 
 
+f = lambda x: np.sqrt(x)*np.sin(x**2)
 
-a) $f(x)=e^{2x}-cos 2x$, $x\in [0,2]$
+x_values = np.linspace(0, np.pi, 200)
 
-b) $f(x)=log(x+2)-(x+1)^2$, $x\in [0,5]$
+plt.figure(figsize=(8,6))
+plt.plot(x_values,  f(x_values), color = "darkred", linewidth=1.5)
+plt.grid()
+plt.show()
+```
 
-c) $f(x)=\sqrt{x} sen(x^2)$, $x\in [0,\pi]$
+Derivada : $f'(x)= 2x\sqrt{x}\,cos(x^2)+\frac{sen(x^2)}{2\sqrt{x}}$. Aproximaciones con dos tamaños de paso $h=0.05$ y $h=0.1$
 
-d) $f(x)=(cos\,3x)^2-e^{2x}$, $x\in [0,\pi/2]$
+```{python}
+#| code-fold: true
+#| warning: false
+#| message: false
 
+derf = lambda x: 2* x * np.sqrt(x) * np.cos(x**2)+ (np.sin(x**2)/2) * (1/np.sqrt(x))
+
+# Función de numdifftools
+df_01 = nd.Derivative(f, step=0.1, method='central', order=2)
+df_005 = nd.Derivative(f, step=0.05, method='central', order=2)
+
+
+fig = go.Figure()
+# Aproximación de la derivada con los tamaños de paso 
+fig.add_trace(go.Scatter(x= x_values, y= df_01(x_values), mode='lines', name='h=0.1', line=dict(color='teal', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= df_005(x_values), mode='lines', name='h=0.05', line=dict(color='royalblue', width=1)))
+# Aproximación de la derivada con derivative de Scipy
+fig.add_trace(go.Scatter(x= x_values, y= derivative(f, x_values).df, mode='lines', name='SciPy', line=dict(color='aqua', width=2)))
+# Derivada "exacta"
+fig.add_trace(go.Scatter(x= x_values, y= derf(x_values), mode='lines', name='Derivada', line=dict(color='goldenrod', width=1)))
+
+fig.update_layout(
+    title="Gráfica de aproximación de las derivadas",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white",
+    width = 768,
+    height = 576
+)
+
+fig.show()
+```
+
+Gráfica del valor absoluto de los errores para las aproximaciones de la primera derivada.
+
+```{python}
+#| code-fold: true
+#| warning: false
+
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x= x_values, y= abs(derf(x_values)-df_01(x_values)), mode='lines', name='h=0.1', line=dict(color='royalblue', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= abs(derf(x_values)-df_005(x_values)), mode='lines', name='h=0.05', line=dict(color='teal', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= abs(derf(x_values)-derivative(f, x_values).df), mode='lines', name='SciPy', line=dict(color='aqua', width=2)))
+
+fig.update_layout(
+    title="Gráfica de errores",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white",
+    width = 768,
+    height = 576
+)
+
+fig.show()
+```
+
+Segunda derivada: $f''(x)= 4 \sqrt{x}\, cos(x^2)-sen(x^2)\left(4 x^2 \sqrt{x}+\frac{1}{4x\sqrt{x}} \right)$. Aproximaciones con $h=0.05$ y $h=0.1$
+
+```{python}
+#| code-fold: true
+#| warning: false
+
+dderf = lambda x: 4* np.sqrt(x) * np.cos(x**2) -np.sin(x**2) *(4* x **2 * np.sqrt(x)+1/(4*x*np.sqrt(x)))
+
+# Funciones de numdifftools para la segunda derivada
+ddf_01 = nd.Derivative(f, step=0.1, method='central', order=2, n = 2)
+ddf_005 = nd.Derivative(f, step=0.05, method='central', order=2, n = 2)
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(x= x_values, y= ddf_01(x_values), mode='lines', name='h=0.1', line=dict(color='royalblue', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= ddf_005(x_values), mode='lines', name='h=0.05', line=dict(color='teal', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= dderf(x_values), mode='lines', name='2da. derivada', line=dict(color='goldenrod', width=1)))
+
+# Configurar diseño de la gráfica
+fig.update_layout(
+    title="Gráfica de aproximación de la 2da derivada",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white",
+    width = 768,
+    height = 576
+)
+
+fig.show()
+
+```
+
+Gráfica del valor absoluto de los errores para las aproximaciones de la segunda derivada.
+
+```{python}
+#| code-fold: true
+#| warning: false
+
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x= x_values, y= abs(dderf(x_values)-ddf_01(x_values)), mode='lines', name='h=0.1', line=dict(color='royalblue', width=1)))
+fig.add_trace(go.Scatter(x= x_values, y= abs(dderf(x_values)-ddf_005(x_values)), mode='lines', name='h=0.05', line=dict(color='teal', width=1)))
+
+fig.update_layout(
+    title="Gráfica de errores segunda derivada",
+    xaxis_title="x",
+    yaxis_title="y",
+    template="plotly_white",
+    width = 768,
+    height = 576
+)
+
+fig.show()
+```
+
+d)  $f(x)=(cos\,3x)^2-e^{2x}$, $x\in [0,\pi/2]$
 
 # Ejericicio 2
 
-Aproximar las siguientes integrales, cada caso hacer una gráfica de la función e indicar el área bajo la curva.
+Aproximar las siguientes integrales con la función `integrate.quad` (de SciPy) y con el método de Montecarlo, en cada caso hacer una gráfica de la función e indicar el área bajo la curva.
 
-a)
+a)  
 
 \begin{equation}
 \int_0^1 e^{-x^2}\,dx
 \end{equation}
 
-
-b) 
+b)  
 
 \begin{equation}
 \int_0^\pi sen(x^2)\,dx
 \end{equation}
 
-c) 
+Gráfica de la función y *área bajo la curva*.
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+f= lambda x: np.sin(x ** 2)
+  
+a = 0
+b = np.pi
+
+x_values = np.linspace(a, b, 100)
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,f(x_values), label="Función")
+plt.fill_between(np.linspace(a,b, 100), y1=0, y2=f(np.linspace(a,b, 100)), color="green", alpha=0.5)
+plt.grid()
+plt.legend()
+#plt.axis('square')
+plt.show()
+```
+
+**Aproximación de la integral.**
+
+```{python}
+#| code-fold: true
+
+integral = integrate.quad(f, a, b)
+print(f'La aproximación de la integral es: {integral[0]}, con un error aproximado de {integral[1]}')
+```
+
+**Aproximación de la integral por el método de Montecarlo.**
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+N =500000
+
+ymax = 1
+ymin = -1
+
+x = np.random.uniform(a, b, N)
+y = np.random.uniform(ymin, ymax, N)
+
+puntos_in = np.abs(y) <= abs(f(x))
+puntos_in = puntos_in * np.sign(y)== np.sign(f(x))
+puntos_in_positivo = puntos_in *(1 == np.sign(f(x)))
+puntos_in_negativo = puntos_in *(-1 == np.sign(f(x)))
+
+puntos_out = ~ puntos_in
+puntos_out_positivo = puntos_out * (1 == np.sign(y))
+puntos_out_negativo = puntos_out * (-1 == np.sign(y))
+
+
+
+x_values = np.linspace(a, b, 100)
+
+plt.figure(figsize=(8,6))
+
+plt.plot(x[puntos_in_positivo], y[puntos_in_positivo], 'o', color="green", label= "Puntos in +", alpha=0.5, markersize=2.5)
+plt.plot(x[puntos_in_negativo], y[puntos_in_negativo], 'o', color="red", label= "Puntos in -", alpha=0.5, markersize=2.5)
+plt.plot(x[puntos_out_positivo], y[puntos_out_positivo], 'o', color="blue", label= "Puntos out +", alpha=0.5, markersize=2.5)
+plt.plot(x[puntos_out_negativo], y[puntos_out_negativo], 'o', color="skyblue", label= "Puntos out -", alpha=0.5, markersize=2.5)
+plt.plot(x_values,f(x_values), color= "black", label="Función", linewidth=1.2)
+plt.grid()
+plt.legend()
+plt.show()
+
+  
+```
+
+```{python}
+#| code-fold: true
+
+integral_montecarlo = (b-a)* ymax *(sum(puntos_in_positivo)/(sum(puntos_in_positivo) + sum(puntos_out_positivo))) + (b-a) * ymin * (sum(puntos_in_negativo)/(sum(puntos_in_negativo) + sum(puntos_out_negativo))) 
+
+
+print(f'El valor aproximado de la integral con el método de Montecarlo es: {integral_montecarlo}')
+```
+
+c)  
 
 \begin{equation}
 \int_0^\pi \frac{sen(x)}{x}\,dx
 \end{equation}
 
+Gráfica de la función y área bajo la curva.
 
-d) 
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+#| warning: false
+
+f= lambda x: np.sin(x)/x
+  
+a = 0
+b = np.pi
+
+
+x_values = np.linspace(a, b, 100)
+
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,f(x_values), label="Función")
+plt.fill_between(np.linspace(a,b, 100), y1=0, y2=f(np.linspace(a,b, 100)), color="green", alpha=0.5)
+plt.grid()
+plt.legend()
+#plt.axis('square')
+plt.show()
+
+  
+```
+
+**Aproximación de la integral.**
+
+```{python}
+#| code-fold: true
+
+integral = integrate.quad(f, a, b)
+print(f'La aproximación de la integral es: {integral[0]}, con un error aproximado de {integral[1]}')
+```
+
+**Aproximación de la integral por el método de Montecarlo.**
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+#| warning: false
+
+N =10000
+
+ymax = 1
+ymin = 0
+
+x = np.random.uniform(a, b, N)
+y = np.random.uniform(ymin, ymax, N)
+
+puntos_in = y <= f(x)
+  
+x_values = np.linspace(a, b, 100)
+
+plt.figure(figsize=(8,6))
+plt.plot(x[puntos_in], y[puntos_in], 'o', color="red", label= "Puntos in", alpha=0.5)
+plt.plot(x[~puntos_in], y[~puntos_in], 'o', color="blue", label= "Puntos out", alpha=0.5)
+plt.plot(x_values,f(x_values), color= "black", label="Función", linewidth=1.2)
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+```{python}
+#| code-fold: true
+
+integral_montecarlo = (b-a)* ymax *(sum(puntos_in)/N) 
+
+
+print(f'El valor aproximado de la integral con el método de Montecarlo es: {integral_montecarlo}')
+```
+
+d)  
 
 \begin{equation}
 \int_0^\infty e^{-x^2} cos(x) \,dx
 \end{equation}
 
-
-e) 
+e)  
 
 \begin{equation}
 \int_0^1 x^x \,dx
 \end{equation}
 
-
-f) 
+f)  
 
 \begin{equation}
 \int_1^5 e^{-x^2} x^3 dx
 \end{equation}
 
-
-g) 
+g)  
 
 \begin{equation}
 \int_0^1 \sqrt{1-x^2} dx
 \end{equation}
 
+Gráfica de la función y área bajo la curva
 
-h) 
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+#| warning: false
+
+f= lambda x: np.sqrt(1-x**2)
+  
+a = 0
+b = 1
+
+x_values = np.linspace(a, b, 100)
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,f(x_values), label="Función")
+plt.fill_between(np.linspace(a,b, 100), y1=0, y2=f(np.linspace(a,b, 100)), color="green", alpha=0.5)
+plt.grid()
+plt.legend()
+plt.axis('square')
+plt.show()
+```
+
+
+**Aproximación de la integral.**
+
+```{python}
+#| code-fold: true
+
+integral = integrate.quad(f, a, b)
+print(f'La aproximación de la integral es: {integral[0]}, con un error aproximado de {integral[1]}')
+```
+
+**Aproximación de la integral por el método de Montecarlo.**
+
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+N =10000
+
+ymax = 1
+ymin = 0
+
+x = np.random.uniform(a, b, N)
+y = np.random.uniform(ymin, ymax, N)
+
+puntos_in = y <= f(x)
+
+plt.figure(figsize=(8,6))
+plt.plot(x[puntos_in], y[puntos_in], 'o', color="red", label= "Puntos in", alpha=0.5)
+plt.plot(x[~puntos_in], y[~puntos_in], 'o', color="blue", label= "Puntos out", alpha=0.5)
+plt.plot(x_values,f(x_values), color= "black", label="Función", linewidth=1.2)
+plt.grid()
+plt.legend()
+plt.axis('square')
+plt.show()
+```
+
+```{python}
+#| code-fold: true
+
+integral_montecarlo = (b-a)* ymax *(sum(puntos_in)/N) 
+
+
+print(f'El valor aproximado de la integral con el método de Montecarlo es: {integral_montecarlo}')
+```
+
+
+h)  
 
 \begin{equation}
 \int_0^\infty \frac{x}{e^x-1} dx
 \end{equation}
 
-
-
-i) 
+i)  
 
 \begin{equation}
 \int_0^1 \frac{1}{\sqrt{x^4+1}} dx
 \end{equation}
 
-
 # Ejercicio 3
 
 Aproximar las siguientes integrales dobles y triples, llevar a cabo la gráfica cuando se indique y comparar con el valor *exacto* de la integral.
 
-a) Realizar gráfica
-
+a)  Realizar gráfica
 
 \begin{equation}
 \int_{-1}^{1}\int_1^2 (3y^2-x^2+5) dx dy
 \end{equation}
 
-b) 
+b)  
 
 \begin{equation}
 \int_{0}^{6}\int_1^5 \sqrt{x+4y} dx dy
 \end{equation}
 
-
-c) 
+c)  
 
 \begin{equation}
 \int_{1}^{e}\int_0^{log(x)} x^3 dx dy
 \end{equation}
 
-
-d) 
+d)  
 
 \begin{equation}
 \int\int_D 30ye^x dx dy
 \end{equation}
 
-Donde $D\subset \mathbb{R}^2$ es la región en la siguiente gráfica. 
+Donde $D\subset \mathbb{R}^2$ es la región en la siguiente gráfica.
 
 ```{python}
 #| code-fold: true
@@ -173,22 +516,113 @@ plt.show()
   
 ```
 
+**Aproximación de la integral.**
 
-e) 
+```{python}
+#| code-fold: true
+
+f = lambda y, x: 30 * y * np.exp(x)
+
+integral = integrate.dblquad(f, 0, 4, lambda x: x/4, lambda x: x)
+print(f'La aproximación de la integral es: {integral[0]}, con un error aproximado de {integral[1]}')
+```
+
+En este caso el valor exacto de la integral es $\frac{225}{8} (5e^4-1)$. Se calcula el error absoluto.
+
+```{python}
+#| code-fold: true
+
+integral_exacta = 225/8*(5*np.exp(4)-1)
+error_absoluto = abs(integral_exacta - integral[0])
+print(f'El error absoluto es:{error_absoluto}')
+```
+
+
+
+
+e)  
 
 \begin{equation}
 \int\int \int_B z e^{x+y} dx\, dy\, dz, \, B=[0,1] \times [0,1] \times [0,1]
 \end{equation}
 
-
-f) 
+f)  
 
 \begin{equation}
 \int_0^1 \int_0^x \int_0^y (y+xz) dz\, dy\, dx
 \end{equation}
 
-
-
 # Ejercicio 4
 
 De [scipy.stats](@https://docs.scipy.org/doc/scipy/reference/stats.html) elige alguna distribución de probabilidad continua, realiza la gráfica y encuentra la probabilidad que la variable aleatoria tome un valor en un intervalo dado. Compara el resultado con el método `cdf`.
+
+
+Como ejemplo consideraremos la distribución gamma, cuya función de densidad está dada por
+
+\begin{equation}
+f(x, a)= \frac{x^{a-1} e^{-x}}{\Gamma (a)}
+\end{equation}
+
+Gráficamos la función de densidad con un valor de $a = 1.9$.
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+from scipy.stats import gamma
+a = 1.9
+
+x_values = np.linspace(0 , gamma.ppf(0.99, a), 500)
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values, gamma.pdf(x_values, a), label="Función de densidad")
+plt.grid()
+plt.legend()
+plt.show()
+
+
+```
+
+
+
+Elegimos el intervalo $[1,3]$ para calcular la integral.
+
+```{python}
+#| code-fold: true
+#| fig-align: 'center'
+
+a1 = 1
+b1 = 3
+
+x_values = np.linspace(0 , gamma.ppf(0.99, a), 500)
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values, gamma.pdf(x_values, a), label="Función de densidad")
+plt.fill_between(np.linspace(a1,b1, 500), y1=0, y2=gamma.pdf(np.linspace(a1,b1, 500), a), color="green", alpha=0.5)
+plt.grid()
+plt.legend()
+plt.show()
+
+
+```
+
+Se obtiene la integral con `integrate.quad`
+
+```{python}
+#| code-fold: true
+
+integral = integrate.quad(gamma.pdf, a1, b1, args = (a,))
+
+print(f'La aproximación de la integral es: {integral[0]}, con un error aproximado de {integral[1]}')
+```
+
+Ahora se obtiene el valor por medio del método `cdf` (cumulative distribution function).
+
+```{python}
+gamma.cdf(3, a) - gamma.cdf(1, a)
+```
+
+
+
+
+

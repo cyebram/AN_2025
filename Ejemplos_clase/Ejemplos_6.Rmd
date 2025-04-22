@@ -31,6 +31,7 @@ library(ISLR2)
 library(car)
 library(corrplot)
 library(rgl)
+library(scatterPlotMatrix)
 knitr::knit_hooks$set(webgl = hook_webgl)
 ```
 
@@ -42,13 +43,20 @@ data(Credit)
 head(Credit)
 glimpse(Credit)
 ```
+En total son 11 variables, de las cuales 4 son cualitativas o categóricas: `Own`, `Student`, `Married` y `Region`. A continuación se muestra el resumen estadístico de cada una:
+
+```{r}
+summary(Credit)
+```
 
 
 
 
-# Distribución de variables (histogramas) {.tabset}
+# Distribución de variables cuantitativas (histogramas) {.tabset}
 
-## Income
+## Income {.tabset}
+
+### Student
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 ggplot(Credit)+
@@ -60,7 +68,21 @@ ggplot(Credit)+
 
 
 
-## Limit
+### Region
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Income, fill=Region), color="black")+
+  scale_fill_manual(values=c("chocolate1", "dodgerblue", "red"))+
+  theme_bw()
+
+```
+
+
+## Limit {.tabset}
+
+
+### Student
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 ggplot(Credit)+
@@ -70,6 +92,65 @@ ggplot(Credit)+
 
 ```
 
+
+### Region
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Limit, fill=Region), color="black")+
+  scale_fill_manual(values=c("chocolate1", "dodgerblue", "red"))+
+  theme_bw()
+
+```
+
+## Rating {.tabset}
+
+
+### Student
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Rating, fill=Student), color="black")+
+  scale_fill_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+
+```
+
+
+### Region
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Rating, fill=Region), color="black")+
+  scale_fill_manual(values=c("chocolate1", "dodgerblue", "red"))+
+  theme_bw()
+
+```
+
+
+
+
+## Balance {.tabset}
+
+### Estudent
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Balance, fill=Student), color="black")+
+  scale_fill_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+
+```
+
+### Region
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_histogram(aes(Balance, fill=Region), color="black")+
+  scale_fill_manual(values=c("chocolate1", "dodgerblue", "red"))+
+  theme_bw()
+
+```
 
 
 
@@ -81,7 +162,7 @@ ggplot(Credit)+
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 ggplot(Credit)+
   geom_point(aes(Income, Limit, color=Student), size=2)+
-  geom_smooth(aes(Income, Limit), method="lm", size=1, se=FALSE)+
+  geom_smooth(aes(Income, Limit), method="lm", linewidth=1, se=FALSE)+
   scale_color_manual(values=c("firebrick", "goldenrod1"))+
   theme_bw()
 ```
@@ -96,6 +177,315 @@ ggplot(Credit)+
   scale_color_manual(values=c("firebrick", "goldenrod1"))+
   theme_bw()
 ```
+
+
+## Income vs Balance
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Income, Balance, color=Student), size=2)+
+  geom_smooth(aes(Income, Balance), method="lm", size=1, se=FALSE)+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+
+# Matriz de dispersión
+
+```{r echo=FALSE}
+scatterPlotMatrix(dplyr::select(Credit, where(is.numeric)))
+
+```
+
+
+
+# Correlación
+
+```{r, echo= FALSE}
+credit_corr <- cor(dplyr::select(Credit, where(is.numeric)))
+
+credit_corr
+
+```
+
+```{r, echo=FALSE}
+corrplot(credit_corr)
+```
+
+# Regresión lineal simple Limit ~ Income, paso a paso.
+
+Se requiere ajustar una regresión lineal simple por medio de mínimos cuadrados con el siguiente modelo:
+
+\begin{equation}
+Y \approx \beta_0 + \beta_1 X 
+\end{equation}
+
+Donde $Y=Limit$ y $X=Income$. Los coeficientes están dados por
+
+\begin{equation}
+\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar{x}) (y_i-\bar{y})}{\sum_{i=1}^n (x_i-\bar{x})^2} \qquad \qquad \beta_0=\bar{y}-\beta_1\bar{x}
+\end{equation}
+
+Inicialmente seleccionamos las columnas `Income`  y `Limit`.  Para cada una calculamos la desviación de la media y posteriormente el producto de tales desviaciones:
+
+
+```{r}
+data_reg <- dplyr::select(Credit, Income, Limit)
+data_reg <- mutate(data_reg, desv_Income= Income - mean(Income), desv_Limit = Limit - mean(Limit), desv_producto = desv_Income * desv_Limit, desv_Incomesq = desv_Income^2 )
+
+head(data_reg)
+```
+
+
+Con los valores recién calculados se obtienen los coeficientes:
+
+```{r}
+beta1 <- sum(data_reg$desv_producto) / sum(data_reg$desv_Incomesq)
+beta1
+
+beta0 <- mean(data_reg$Limit) - beta1 * mean(data_reg$Income)
+beta0
+```
+
+
+
+Se grafica la línea con los coeficientes obtenidos y se compara con la línea que genera `geom_smooth`.
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Income, Limit, color=Student), size=2)+
+  geom_smooth(aes(Income, Limit), method="lm", linewidth=1.25, se=FALSE)+
+  geom_abline(intercept = beta0, slope = beta1 , color ="deeppink", linewidth=0.95, linetype= "dashed")+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+
+
+En R podemos utilizar la función `lm` para llevar a cabo el modelo:
+
+
+```{r}
+reg_lim_inc <- lm(Limit ~ Income, data = Credit)
+
+summary(reg_lim_inc)
+```
+
+
+
+# Interpretación de resultados
+
+Residuos: El valor observado de la variable dependiente (Limit) - valor ajustado por el modelo.
+
+```{r}
+tabla_resultados <- tibble(Limit=Credit$Limit, Limit_fitted= reg_lim_inc$fitted.values, Residuos= Limit-Limit_fitted, Residuals= reg_lim_inc$residuals)
+
+summary(tabla_resultados$Residuos)
+```
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Income, Limit, color=Student), size=2)+
+  geom_smooth(aes(Income, Limit), method="lm", linewidth=1.25, se=FALSE)+
+  geom_segment(aes(x=Income, y=reg_lim_inc$fitted.values, xend=Income, yend=Limit), alpha=0.5)+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+
+
+Calcular RSE
+
+
+```{r}
+RSS <- sum(tabla_resultados$Residuos^2)
+RSE <- sqrt(RSS/(nrow(Credit)-2))
+
+RSS
+
+
+RSE
+```
+Error estándar de $\beta_0$
+
+
+```{r}
+SE_beta0 <- RSE * sqrt(1/nrow(Credit)+mean(Credit$Income)^2/
+                      (sum((Credit$Income-mean(Credit$Income))^2)   ) )
+SE_beta0
+
+```
+
+Error estándar de $\beta_1$
+
+```{r}
+SE_beta1 <- sqrt(RSE^2/(sum((Credit$Income-mean(Credit$Income))^2)))
+SE_beta1
+```
+
+
+
+t-value de $\beta_0$
+
+```{r}
+t_beta0 <- coef(reg_lim_inc)[[1]]/SE_beta0
+t_beta0
+```
+
+p-value de $\beta_0$
+
+```{r}
+2*pt(t_beta0, df= nrow(Credit)-2, lower.tail = FALSE)
+```
+
+
+t-value de $\beta_1$
+
+```{r}
+t_beta1 <- coef(reg_lim_inc)[[2]]/SE_beta1
+t_beta1
+```
+
+p-value de $\beta_1$
+
+```{r}
+2*pt(t_beta1, df= nrow(Credit)-2, lower.tail = FALSE)
+```
+
+
+En ambos casos el valor absoluto de los t-values es muy alto, por lo tanto los p-values son muy bajos  (prácticamente cero), a manera de ejemplo se muestra el área bajo la curva de la función de densidad de una variable aleatoria con distribución t y 398 grados de libertad para un hipotético t-value de 1.5.
+
+
+```{r}
+ggplot()+
+  geom_function(fun = dt, args = list(df = nrow(Credit)-2), xlim=c(-3.5, 3.5), color="goldenrod", linewidth=2.5)+
+  geom_function(fun = dnorm, xlim=c(-3.5, 3.5), color="red")+
+  stat_function(fun = dt, args = list(df = nrow(Credit)-2), xlim=c(-3.5, -1.5), geom = "area", fill= "green", alpha =0.75)+
+  stat_function(fun = dt, args = list(df = nrow(Credit)-2), xlim=c(1.5, 3.5), geom = "area", fill= "green", alpha =0.75)+
+  theme_bw()
+```
+
+
+Cálculo de $R^2$
+
+```{r}
+TSS <- sum((Credit$Limit-mean(Credit$Limit))^2)
+RSQ <- (TSS-RSS)/TSS
+RSQ
+```
+Correlación al cuadrado
+
+```{r}
+credit_corr^2
+```
+
+
+
+
+
+# Regresión Limit~ Balance
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(Credit)+
+  geom_point(aes(Balance, Limit, color=Student), size=2)+
+  geom_smooth(aes(Balance, Limit), method="lm", linewidth=1.25, se=FALSE)+
+  scale_color_manual(values=c("firebrick", "goldenrod1"))+
+  theme_bw()
+```
+
+
+
+
+```{r}
+reg_lim_balance <- lm(Limit~ Balance, data=Credit)
+
+summary(reg_lim_balance)
+```
+
+
+
+
+
+
+# Regresión lineal múltiple Limit ~ Income + Balance
+
+```{r}
+reg_lim_ib <- lm(Limit ~ Income + Balance, data=Credit)
+summary(reg_lim_ib)
+```
+
+
+```{r webgl=TRUE}
+scatter3d(Limit~ Income + Balance, data= Credit, fit="linear", residuals=TRUE, bg="white", axis.scales=TRUE, 
+  grid=TRUE, ellipsoid=FALSE)
+
+
+```
+
+
+
+
+
+## Regresión polinomial
+
+
+Generamos valores aleatorios a partir de una función cuadrática y se grafican:
+
+
+```{r}
+X <- rnorm(1500,mean= 15, sd= 5)
+Y <- 2*X^2+4*X + rnorm(1500, sd=100)
+
+datos <- data.frame(X=X, Y=Y)
+
+ggplot(datos)+
+  geom_point(aes(X, Y), color="goldenrod4")+
+  theme_bw()
+
+```
+
+
+Se lleva a cabo la regresión lineal simple:
+
+
+```{r}
+
+modelo_lineal <- lm(Y~ X, data=datos)
+summary(modelo_lineal)
+```
+
+Se aproxima la regresión polinomial:
+
+```{r}
+modelo_cuadratico <- lm(Y~ X + I(X^2), data=datos)
+summary(modelo_cuadratico)
+```
+
+Se sugiere comparar los resultados, a continuación se hace de manera gráfica:
+
+
+
+```{r}
+f_lineal <- function(x){coef(modelo_lineal)[1] + coef(modelo_lineal)[2] *x}
+f_cuadratica <- function(x){coef(modelo_cuadratico)[1] + coef(modelo_cuadratico)[2] *x + coef(modelo_cuadratico)[3] *x^2}
+
+my_colors = c("Lineal"="dodgerblue3", "Cuadrática"= "chocolate1")
+
+ggplot( )+
+  geom_point(data=datos, aes(X, Y), color="goldenrod4")+
+  geom_function(aes(color="Lineal"), fun = f_lineal, linewidth= 1.2)+
+  geom_function(aes(color="Cuadrática"), fun = f_cuadratica, linewidth= 1.2)+
+  scale_color_manual(values=my_colors)+
+  labs(color =" ")+
+  theme_bw()
+
+```
+
+
 
 
 
