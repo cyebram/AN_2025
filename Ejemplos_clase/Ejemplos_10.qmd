@@ -50,6 +50,41 @@ plt.show()
 
 
 
+Método de Euler paso por paso
+
+
+```{python}
+f= lambda t, y: y
+
+h= 0.1
+t_values = np.arange(0, 2+h, h)
+
+y_aprox = np.zeros(len(t_values))
+y_aprox[0] = 1
+
+
+# y_aprox[1] =y_aprox[0] + f(t_values[0],  y_aprox[0]) * (t_values[1]- t_values[0])
+# y_aprox[2] =y_aprox[1] + f(t_values[1],  y_aprox[1]) * (t_values[2]- t_values[1])
+# y_aprox[3] =y_aprox[2] + f(t_values[2],  y_aprox[2]) * (t_values[3]- t_values[2])
+
+
+for i in range(0, len(t_values)-1):
+  y_aprox[i+1] = y_aprox[i] + h * f(t_values[i],  y_aprox[i]) 
+
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,  y_sol(x_values), label="Solución")
+plt.plot(t_values, y_aprox, 'o', label = "Aproximación")
+plt.grid()
+plt.legend()
+plt.show()
+
+
+```
+
+
+
+
 # Ejemplo 2
 
 Aproximar la solución del problema con valor inicial
@@ -59,6 +94,45 @@ y' + 9y = 4,\qquad y(0)=0
 \end{equation}
 
 en el intervalo $[0,1]$. La solución exacta es $y(t)=\frac{4}{9}(1-e^{-9x})$
+
+
+```{python}
+y_sol= lambda x:(4/9)*(1-np.exp(-9*x))
+x_values = np.linspace(0, 1, 100)
+
+
+
+f= lambda t, y: - 9*y+4
+
+t_values = np.arange(0, 1+0.01, 0.01)
+
+y_aprox = np.zeros(len(t_values))
+y_aprox[0] = 0
+
+
+# y_aprox[1] =y_aprox[0] + f(t_values[0],  y_aprox[0]) * (t_values[1]- t_values[0])
+# y_aprox[2] =y_aprox[1] + f(t_values[1],  y_aprox[1]) * (t_values[2]- t_values[1])
+# y_aprox[3] =y_aprox[2] + f(t_values[2],  y_aprox[2]) * (t_values[3]- t_values[2])
+
+
+for i in range(0, len(t_values)-1):
+  y_aprox[i+1] = y_aprox[i] + f(t_values[i],  y_aprox[i]) * (t_values[i+1]- t_values[i])
+  
+  
+edo_sol = integrate.solve_ivp(f, [0,1], [0], t_eval=t_values)
+
+
+plt.figure(figsize=(8,6))
+plt.plot(x_values,  y_sol(x_values), label="Solución")
+plt.plot(t_values, y_aprox, label = "Aproximación")
+plt.plot(t_values, edo_sol.y[0], label="Aprox sol_ivp")
+plt.grid()
+plt.legend()
+plt.show()
+
+
+```
+
 
 
 # Ejemplo 3
@@ -71,8 +145,69 @@ Aproximar la solución del problema con valor inicial
 
 La solución exacta es $y(t)=0.2e^{2t}+0.8e^{-3t}$
 
+```{python}
+f= lambda t,y: np.exp(2*t) - 3*y
+sol_exacta = lambda t: 0.2*np.exp(2*t)+0.8*np.exp(-3*t)
+
+t_values = np.linspace(0, 2, 100)
+
+edo_sol= integrate.solve_ivp(f, [0, 2], [1], t_eval= t_values)
 
 
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, sol_exacta(t_values), label="Exacta")
+plt.plot(t_values, edo_sol.y[0], label="Aprox")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+```{python}
+plt.figure(figsize=(8,6))
+plt.plot(t_values, abs(sol_exacta(t_values)-edo_sol.y[0]), label="Error")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+# Atractor de Lorenz
+
+
+```{python}
+def lorenz_att(t, X, sigma, rho, beta):
+  x, y, z = X
+  return[sigma*(y-x), -y-x*z+rho*x, x*y-beta*z]
+
+sigma = 10
+rho = 28
+beta = 8/3
+t0 = 0
+tf = 50
+s0 = np.array([0, 1, 1])
+t_values = np.linspace(t0, tf, 10000)
+
+
+sol_lorenz = integrate.solve_ivp(lorenz_att, [0,50], s0, t_eval=t_values, args = (sigma, rho, beta) )
+
+
+from mpl_toolkits import mplot3d
+
+fig = plt.figure(figsize = (10,10))
+ax = plt.axes(projection='3d')
+ax.grid()
+
+ax.plot3D(sol_lorenz.y[0], sol_lorenz.y[1], sol_lorenz.y[2])
+
+# Set axes label
+ax.set_xlabel('x', labelpad=20)
+ax.set_ylabel('y', labelpad=20)
+ax.set_zlabel('z', labelpad=20)
+
+plt.show()
+
+
+```
 
 
 
