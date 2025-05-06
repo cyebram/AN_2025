@@ -35,6 +35,28 @@ donde $k$ es una constante.
 Consideramos una taza de café a 95 °C en una habitación de 18 °C. Se sabe que el café se enfría a una razón de 2 °C/min cuando su temperatura es de 70 °C. Calcula el valor de la constante $k$ y brinda una gráfica de la solución de la ecuación diferencial.
 
 
+El valor $k=-1/26$
+
+```{python}
+#| code-fold: true
+
+f= lambda t,y: (-1/26)*(y-18)
+t0 = 0
+tf = 200
+t_values = np.linspace(t0, tf, 1000)
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], [95], t_eval= t_values)
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label="Temperatura")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+
 # Ejercicio 2
 
 Brinda una aproximación de la solución del siguiente problema con valor inicial.
@@ -42,7 +64,6 @@ Brinda una aproximación de la solución del siguiente problema con valor inicia
 $$
 y' = t -ty, \qquad y(1)=0.
 $$
-
 
 
 # Ejercicio 3
@@ -54,6 +75,31 @@ u''-3u'-1.5 u= 8\,sen(3t), \qquad u(1)=-0.5, u'(1)=1
 $$
 
 Escribe el respectivo sistema de ecuaciones diferenciales de primer orden considerando que $v=u'(t)$ (velocidad) y posteriormente brinda la solución del sistema por medio de las funciones $u(t)$ y $v(t)$
+
+
+```{python}
+#| code-fold: true
+
+def f(t, U):
+  u, v = U
+  return[v, 3*v+1.5*u +8*np.sin(3*t)]
+
+
+t0 = 1
+tf = 2
+s0 = np.array([-0.5, 1])
+t_values = np.linspace(t0, tf, 1000)
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval= t_values)
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label="u(t)")
+plt.plot(t_values, edo_sol.y[1], label="v(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
 
 <br>
 
@@ -128,6 +174,46 @@ $$
 LQ'' + RQ' + \frac{1}{C}Q = V(t),\quad Q(0) = 0,\ Q'(0) = 0,\quad V(t) = \sin(t)
 $$
 
+
+```{python}
+#| code-fold: true
+
+def f(t, Q, L, R, C):
+  q, i = Q
+  return[i, (1/L)*(np.sin(t)-R*i-q/C)]
+
+
+t0 = 0
+tf = 50
+s0 = np.array([0, 0])
+t_values = np.linspace(t0, tf, 10000)
+
+L = 0.5
+R = 2
+C = 5
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval= t_values, args = (L, R, C))
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label="Q(t)")
+plt.plot(t_values, edo_sol.y[1], label="I(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
+
+```{python}
+plt.figure(figsize=(8,6))
+plt.plot(edo_sol.y[0], edo_sol.y[1], label="Trayectoria")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
 # Ejercicio 11
 
 **Ecuación de Bessel aproximada**
@@ -188,6 +274,32 @@ $$
 y''' + y'' + y^3 = \cos(t),\quad y(0) = 0,\ y'(0) = 1,\ y''(0) = 0
 $$
 
+
+
+```{python}
+#| code-fold: true
+
+def f(t, U):
+  u1, u2, u3 = U
+  return[u2, u3, np.cos(t)-u3 -u1 ** 3]
+
+
+t0 = 0
+tf = 2
+s0 = np.array([0, 1, 0])
+t_values = np.linspace(t0, tf, 1000)
+
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0)
+
+plt.figure(figsize=(8,6))
+plt.plot(edo_sol.t, edo_sol.y[0], label ="y(t)")
+plt.plot(edo_sol.t, edo_sol.y[1], label ="y'(t)")
+plt.plot(edo_sol.t, edo_sol.y[2], label ="y''(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
 
 
 # Ejercicio 17
