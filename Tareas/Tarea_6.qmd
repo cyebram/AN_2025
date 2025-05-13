@@ -35,10 +35,29 @@ donde $k$ es una constante.
 Consideramos una taza de café a 95 °C en una habitación de 18 °C. Se sabe que el café se enfría a una razón de 2 °C/min cuando su temperatura es de 70 °C. Calcula el valor de la constante $k$ y brinda una gráfica de la solución de la ecuación diferencial.
 
 
-El valor $k=-1/26$
+A partir de los datos tenemos que la temperatura del entorno $T_s=18°C$, la cual es considerada constante. Además, 
+
+$$
+\frac{dT}{dt} = 2°C/min\qquad \text{cuando} \qquad T=70°C
+$$
+luego,
+
+$$
+k = \frac{1}{T-T_s}\frac{dT}{dt}= \frac{1}{70-18}\,2 = -\frac{1}{26}
+$$
+
+Por lo tanto, el problema con valor inicial cuya solución se aproximará es el siguiente:
+
+$$
+\frac{dT}{dt}=-\frac{1}{26}(T-18)\qquad T(0)=95°C
+$$
+
+A continuación se muestra tal aproximación para $t\in[0,200]$, donde se observa que aproximadamente a partir de $t=150$ se alcanza la temperatura de equilibrio (18°C)
+
 
 ```{python}
 #| code-fold: true
+#| fig-align: 'center'
 
 f= lambda t,y: (-1/26)*(y-18)
 t0 = 0
@@ -76,6 +95,23 @@ $$
 
 Escribe el respectivo sistema de ecuaciones diferenciales de primer orden considerando que $v=u'(t)$ (velocidad) y posteriormente brinda la solución del sistema por medio de las funciones $u(t)$ y $v(t)$
 
+
+Para expresar la ecuación de segundo orden en un sistema de dos ecuaciones diferenciales de primer orden, consideramos la velocidad como $v(t)=u'(t)$, luego, $v'(t)=u''(t)$, al despejar $u''(t)$ y sustituyendo las igualdades descritas tenemos:
+
+$$
+v'(t)= u''(t)= 18\,sen(3t)-3u'-1.5u=18\,sen(3t)-3v-1.5u
+$$
+
+Luego, el sistema de ecuaciones diferenciales es,
+
+$$
+\begin{cases}
+u'  = v\\
+v'  = 18\,sen(3t)-3v-1.5u
+\end{cases}
+$$
+
+con las condiciones iniciales $u(1)=0.5$, $v(1)=1$
 
 ```{python}
 #| code-fold: true
@@ -175,6 +211,18 @@ LQ'' + RQ' + \frac{1}{C}Q = V(t),\quad Q(0) = 0,\ Q'(0) = 0,\quad V(t) = \sin(t)
 $$
 
 
+Consideramos la corriente como la derivada de la carga, es decir $I(t)=Q'(t)$, por lo tanto $I'(t)=Q''(t)$, al despejar la segunda derivada de la carga de la ecuación diferencial de segundo orden y al llevar las sustituciones descritas se obtiene el siguiente sistema de primer orden,
+
+$$
+\begin{cases}
+Q' = I\\
+I' = \frac{1}{L} \left( sen(t) - R\, I-\frac{Q}{C} \right)
+\end{cases}
+$$
+
+con las condiciones iniciales $Q(0)=0, I(0)=0$.
+
+
 ```{python}
 #| code-fold: true
 
@@ -203,9 +251,12 @@ plt.show()
 ```
 
 
+Trayectoria
 
 
 ```{python}
+#| code-fold: true
+
 plt.figure(figsize=(8,6))
 plt.plot(edo_sol.y[0], edo_sol.y[1], label="Trayectoria")
 plt.grid()
@@ -285,17 +336,17 @@ def f(t, U):
 
 
 t0 = 0
-tf = 2
+tf = 5
 s0 = np.array([0, 1, 0])
 t_values = np.linspace(t0, tf, 1000)
 
 
-edo_sol= integrate.solve_ivp(f, [t0, tf], s0)
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval = t_values)
 
 plt.figure(figsize=(8,6))
-plt.plot(edo_sol.t, edo_sol.y[0], label ="y(t)")
-plt.plot(edo_sol.t, edo_sol.y[1], label ="y'(t)")
-plt.plot(edo_sol.t, edo_sol.y[2], label ="y''(t)")
+plt.plot(t_values, edo_sol.y[0], label ="y(t)")
+plt.plot(t_values, edo_sol.y[1], label ="y'(t)")
+plt.plot(t_values, edo_sol.y[2], label ="y''(t)")
 plt.grid()
 plt.legend()
 plt.show()
@@ -309,6 +360,7 @@ plt.show()
 $$
 y''' - 6yy' = 0,\quad y(0) = 2,\ y'(0) = 0,\ y''(0) = -1
 $$
+
 
 
 
@@ -326,13 +378,38 @@ $$
 Una persona abre una cuenta bancaria con un saldo inicial de $2000$ dólares. Sea $b(t)$ el saldo en la cuenta en el tiempo t. Así, $b(0) = 2000$. El banco paga intereses a una tasa continua del $5\%$ anual. La persona realiza depósitos en la cuenta a una tasa continua de $s(t)$ dólares por año. Supogamos que $s(0) = 500$ y que $s(t)$ está aumentando a una tasa continua del $4\%$ anual (la persona puede ahorrar más conforme aumenta su ingreso con el tiempo). Brinda el sistema de ecuaciones diferenciales ordinarias y gráfica la solución $b(t)$ y $s(t)$.
 
 
+```{python}
+#| code-fold: true
+
+def f(t, X):
+  x, y = X
+  return[0.05*x+y, 0.04*y]
+
+
+t0 = 0
+tf = 5
+s0 = np.array([2000, 500])
+t_values = np.linspace(t0, tf, 1000)
+
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval = t_values)
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label ="b(t)")
+plt.plot(t_values, edo_sol.y[1], label ="s(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
 # Ejercicio 20
 
 Aproxima la solución del siguiente sistema de ecuaciones diferenciales ordinarias
 
 \begin{eqnarray}
-x(t) & = -6 x - 3 y\\
-y(t) & = -15 x + 6y
+x'(t) & = -6 x - 3 y\\
+y'(t) & = -15 x + 6y
 \end{eqnarray}
 
 donde $x(0)= 3$ y $y(0)=2$.  Grafica cada una de las funciones y la trayectoria.
@@ -342,8 +419,8 @@ donde $x(0)= 3$ y $y(0)=2$.  Grafica cada una de las funciones y la trayectoria.
 Considera la interacción de dos especies de animales en un hábitat. Considerando que las poblaciones $x(t)$ y $y(t)$ pueden ser modeladas por medio de las ecuaciones
 
 \begin{eqnarray}
-x(t) & = 1.4 x - y\\
-y(t) & = -1.25 x + 3.4y
+x'(t) & = 1.4 x - y\\
+y'(t) & = -1.25 x + 3.4y
 \end{eqnarray}
 
 donde $x(0)=7$ y $y(0)=3$. Grafica cada una de las funciones que brindan la población de cada especie al tiempo $t$.
@@ -382,6 +459,33 @@ x(0) = 0.9,\quad y(0) = 0.1
 $$
 
 
+
+
+```{python}
+#| code-fold: true
+
+def f(t, X):
+  x, y = X
+  return[x*(1 - x) - x*y, -y +x*y]
+
+t0 = 0
+tf = 1000
+s0 = np.array([0.9, 0.1])
+t_values = np.linspace(t0, tf, 1000)
+
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval = t_values)
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label ="x(t)")
+plt.plot(t_values, edo_sol.y[1], label ="y(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+
+
 # Ejercicio 24
 
 **Oscilador de Van der Pol**
@@ -393,6 +497,49 @@ $$
 x(0) = 2,\quad y(0) = 0,\quad \mu = 3
 \end{cases}
 $$
+
+
+```{python}
+#| code-fold: true
+
+def f(t, X, mu):
+  x, y = X
+  return[y, mu* (1 - x**2)*y - x]
+
+
+mu = 3
+t0 = 0
+tf = 30
+s0 = np.array([2, 0])
+t_values = np.linspace(t0, tf, 5000)
+
+
+edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval = t_values, args= (mu,))
+
+plt.figure(figsize=(8,6))
+plt.plot(t_values, edo_sol.y[0], label ="x(t)")
+plt.plot(t_values, edo_sol.y[1], label ="y(t)")
+plt.grid()
+plt.legend()
+plt.show()
+```
+
+Órbita
+
+```{python}
+#| code-fold: true
+
+val_mu = np.linspace(1, 10, 5)
+
+plt.figure(figsize=(8,6))
+for mu in val_mu:
+  edo_sol= integrate.solve_ivp(f, [t0, tf], s0, t_eval = t_values, args= (mu,))
+  plt.plot(edo_sol.y[0], edo_sol.y[1], label = "mu= " + str(mu))
+  
+plt.grid()
+plt.legend()
+plt.show()
+```
 
 
 
